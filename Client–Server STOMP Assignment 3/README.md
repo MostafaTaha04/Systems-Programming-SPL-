@@ -5,18 +5,19 @@
 Mostafa Taha – ID: 326524675
 
 ## Project Overview
-This project implements Assignment 3 of the Systems Programming Lab (SPL) course. The assignment requires building an Emergency Service messaging system based on a client–server architecture over TCP, implementing the STOMP 1.2 protocol to support publish–subscribe communication.
+This project implements Assignment 3 of the Systems Programming Lab (SPL) course.  
+It builds an Emergency Service messaging system using a client–server architecture over TCP, implementing the STOMP 1.2 protocol to support publish–subscribe communication.
 
 The system includes:
 - A Java server that handles multiple concurrent clients, manages subscriptions, and routes messages by topic/channel.
 - A C++ client that connects to the server, sends STOMP frames, receives real-time updates, and supports emergency event reporting and summaries.
 
 ## Main Goals of Assignment 3
-- Implement a STOMP 1.2 messaging system over TCP
+- Implement STOMP 1.2 messaging over TCP
 - Support multiple concurrent clients
 - Provide topic/channel-based publish–subscribe
-- Implement proper STOMP workflow using frames and receipts
-- Build a client that supports required commands: login, join, exit, report, summary, logout
+- Implement correct STOMP workflow using frames and receipts
+- Support required client commands: login, join, exit, report, summary, logout
 - Ensure correct connection lifecycle and resource cleanup
 
 ## STOMP Protocol Support (STOMP 1.2)
@@ -61,56 +62,115 @@ The client is responsible for:
 - Managing local storage of received events per channel/user
 - Generating summary reports to output files
 
-## Supported User Commands (Client)
-- login {host:port} {username} {password}
-- join {channel_name}
-- exit {channel_name}
-- report {json_file}
-- summary {channel_name} {user} {output_file}
-- logout
+## Project Structure
+```text
+Client–Server STOMP Assignment 3/
+├─ client/
+│  ├─ include/
+│  ├─ src/
+│  ├─ data/        (example JSON files)
+│  ├─ bin/         (output executable)
+│  └─ makefile
+└─ server/
+   ├─ src/main/java/...
+   └─ pom.xml
 
-## Command Behavior
-- login opens a TCP connection and sends CONNECT
-- join sends SUBSCRIBE to the requested channel
-- exit sends UNSUBSCRIBE for the channel
-- report loads JSON events and sends them as SEND messages to the channel
-- summary writes a formatted summary file for a given user/channel
-- logout sends DISCONNECT and closes the connection cleanly
 
-## JSON Event Reporting
-The report command reads a JSON file containing:
-- channel_name
-- a list of events including event name, city, date_time, description, and general information fields
+Build and Run Instructions
+Prerequisites
 
-The client converts the JSON content into SEND frames and publishes them to the channel so that all subscribers receive the events.
+Linux / Unix environment
 
-## Data Handling (Client)
+Java 8+ and Maven
+
+C++11 compatible compiler + make
+
+Boost.System + pthread (client links with -lboost_system -lpthread)
+
+Server (Java)
+
+From the server/ directory:
+
+mvn compile
+mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="<port> tpc"
+# or
+mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="<port> reactor"
+
+
+Example:
+
+mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="7777 tpc"
+
+Client (C++)
+
+From the client/ directory:
+
+make
+./bin/StompEMIClient
+
+Supported User Commands (Client)
+
+login {host:port} {username} {password}
+
+join {channel_name}
+
+exit {channel_name}
+
+report {json_file}
+
+summary {channel_name} {user} {output_file}
+
+logout
+
+Command Behavior
+
+login opens a TCP connection and sends CONNECT
+
+join sends SUBSCRIBE to the requested channel
+
+exit sends UNSUBSCRIBE for the channel
+
+report loads JSON events and sends them as SEND messages to the channel
+
+summary writes a formatted summary file for a given user/channel
+
+logout sends DISCONNECT and closes the connection cleanly
+
+JSON Event Reporting
+
+The client/data/ folder in the template contains example JSON files (e.g., events1.json).
+The report command loads a JSON file and publishes its events to the relevant channel.
+
+Data Handling (Client)
+
 The client stores received events organized by:
-- channel
-- user
+
+channel
+
+user
 
 The summary command exports aggregated information and events sorted by time as required by the assignment format.
 
-## Thread Safety & Cleanup
+Thread Safety & Cleanup
+
 The client coordinates its threads so that:
-- The socket listener stops safely on logout/disconnect
-- No background thread remains after termination
+
+The socket listener stops safely on logout/disconnect
+
+No background thread remains after termination
 
 The server ensures:
-- Correct removal of subscriptions on disconnect
-- Proper connection cleanup and consistent state updates
 
-## Build and Run Instructions
+Correct removal of subscriptions on disconnect
 
-### Prerequisites
-- Linux / Unix environment
-- Java + Maven
-- C++11 compatible compiler
-- make
+Proper connection cleanup and consistent state updates
 
-### Server (Java)
-From server directory:
-```bash
-mvn compile
-mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="<port> tpc"
-mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="<port> reactor"
+Notes
+
+Server entry point: bgu.spl.net.impl.stomp.StompServer
+
+Client executable: ./bin/StompEMIClient
+
+
+And **delete** the `::contentReference...` line. After that, yes — it’s correct.
+::contentReference[oaicite:0]{index=0}
